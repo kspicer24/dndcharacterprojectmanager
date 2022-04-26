@@ -9,7 +9,7 @@ require('dotenv').config();
 // const userDao = require("./dao/userdao")
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4001;
 const ddCharactersRouter = require("./routes/character");
 
 app.use(express.json());

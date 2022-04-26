@@ -16,6 +16,18 @@ async function postUser(user){
   return {message};
 }
 
+async function createPost(post){
+    let query = `INSERT INTO POST (userId, body, tags) VALUES 
+               ("${post.userId}", "${post.body}", "${post.tags}")`;
+    const result = await db.query(query);
+    let message = 'Error in creating user';
+
+    if (result.affectedRows){
+        message = 'User created successfully';
+    }
+    return message;
+}
+
 async function getAllRegisteredUsers() {
 console.log('Getting registered users');
 const rows = await db.query(
@@ -125,8 +137,12 @@ async function createCharacter(character){
 
 }
 
+// posts
+
+
 module.exports = {
   getAll,
+  createPost,
   createCharacter,
   update,
   remove,
