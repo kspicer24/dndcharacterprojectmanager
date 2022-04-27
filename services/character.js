@@ -39,6 +39,25 @@ async function getAllPosts(){
     return data;
 }
 
+async function postReply(reply){
+    console.log('creating reply');
+    const rows = await db.query(
+        `INSERT INTO REPLY (userId, postId, body) VALUES (${reply.userId}, ${reply.postId}, '${reply.body}')`
+    )
+}
+
+async function getReplies(post){
+    console.log('getting replies');
+    const rows = await db.query(
+        `SELECT u.username, u.avatar, r.id, r.body 
+                FROM REPLY AS r INNER JOIN USER as u ON u.id = r.userId 
+                WHERE r.postId = ${post.id}`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
 async function likePost(post){
     console.log('liking post');
     await db.query(
@@ -163,6 +182,8 @@ module.exports = {
   createPost,
   getAllPosts,
     likePost,
+    getReplies,
+    postReply,
   createCharacter,
   update,
   remove,

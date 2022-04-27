@@ -30,6 +30,24 @@ router.put('/posts', async function(req, res, next){
     console.error('Error while updating post', err.message);
     next(err);
   }
+});
+
+router.get('/posts/replies/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.getReplies(req.params));
+  } catch (err){
+    console.error('Error while getting replies', err.message);
+    next(err);
+  }
+});
+
+router.post('/posts/replies', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.postReply(req.body));
+  } catch (err){
+    console.error('Error while creating reply', err.message);
+    next(err);
+  }
 })
 
 router.get('/users', async function(req, res, next) {
