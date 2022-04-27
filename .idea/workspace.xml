@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="91821586-23f4-4a95-80d7-9cd45df87a8f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dndcharactermanager-main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql/users_posts.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/character.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/character.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/character.js" beforeDir="false" afterPath="$PROJECT_DIR$/services/character.js" afterDir="false" />
     </list>
@@ -53,7 +46,7 @@
       <option name="presentableId" value="Default" />
       <updated>1650840538471</updated>
       <workItem from="1650840541510" duration="26000" />
-      <workItem from="1650840613722" duration="3924000" />
+      <workItem from="1650840613722" duration="10589000" />
     </task>
     <servers />
   </component>

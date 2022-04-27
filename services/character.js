@@ -28,6 +28,24 @@ async function createPost(post){
     return message;
 }
 
+async function getAllPosts(){
+    console.log('Getting posts');
+    const rows = await db.query(
+        `SELECT p.*, u.username as username, u.avatar as avatar
+                FROM POST as p INNER JOIN USER as u ON p.userId = u.id`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
+async function likePost(post){
+    console.log('liking post');
+    await db.query(
+        `UPDATE POST SET likes = likes + 1 WHERE id = ${post.postId}`
+    );
+}
+
 async function getAllRegisteredUsers() {
 console.log('Getting registered users');
 const rows = await db.query(
@@ -143,6 +161,8 @@ async function createCharacter(character){
 module.exports = {
   getAll,
   createPost,
+  getAllPosts,
+    likePost,
   createCharacter,
   update,
   remove,
