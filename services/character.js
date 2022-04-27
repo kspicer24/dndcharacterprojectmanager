@@ -16,23 +16,64 @@ async function postUser(user){
   return {message};
 }
 
-async function getAllRegisteredUsers() {
-console.log('Getting registered users');
-const rows = await db.query(
-  `SELECT * FROM USER`
-);
-const data = helper.emptyOrRows(rows);  
+async function createCampaign(campaign){
+  let query = `INSERT INTO CAMPAIGN (name) VALUES ("${campaign.name}")`;
+  const result = await db.query(query);
+  let message = 'Error in creating campaign';
 
-return data
+  if (result.affectedRows) {
+    message = 'Campaign created successfully';
+  }
+
+  return {message};
+}
+
+async function getAllCampaigns() {
+  const rows = await db.query(`SELECT * FROM CAMPAIGN`);
+  const data = helper.emptyOrRows(rows);
+  return data;
+}
+
+
+async function getAllUsers(){
+  const rows = await db.query(
+    `SELECT * FROM USER`
+  );
+  const data = helper.emptyOrRows(rows);
+
+
+  return {
+    data
+  }
+}
+
+async function loginUser(user) {
+  const rows = await db.query(
+    `SELECT * FROM USER WHERE username = "${user.username}" AND password = "${user.password}"`
+  );
+  const data = helper.emptyOrRows(rows);  
+  if (data.length > 1) {
+    throw new Error("multiple user with the same username password combination"); 
+  } if (data.length == 1){
+    return data[0];
+  } 
+  return {error: "Incorrect name or password"};
+  
+
 }
 
 async function getAll(page = 1){
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
     `SELECT DDCHARACTER.*, race_id, class_id, RACE.name AS race_name, 
-    CLASS.name AS class_name FROM DDCHARACTER 
+    CLASS.name AS class_name, CAMPAIGN.name AS campaign_name,
+    USER.username AS owner_name
+    
+    FROM DDCHARACTER 
     JOIN RACE ON DDCHARACTER.race_id = RACE.id
-    JOIN CLASS ON DDCHARACTER.class_id = CLASS.id`
+    JOIN CLASS ON DDCHARACTER.class_id = CLASS.id
+    JOIN CAMPAIGN ON DDCHARACTER.campaign_id = CAMPAIGN.id
+    LEFT JOIN USER ON DDCHARACTER.owner_id = USER.id;`
   );
   const data = helper.emptyOrRows(rows);
   const meta = {page};
@@ -44,16 +85,36 @@ async function getAll(page = 1){
 }
 
 async function getAllSpells() {
-    const rows = await db.query(
-        `SELECT KNOWS_SPELL.*, SPELLS.name AS spell_name, 
-        CLASS.name AS class_name FROM KNOWS_SPELL JOIN SPELLS 
-        ON KNOWS_SPELL.spell_id = SPELLS.id
-        JOIN CLASS on KNOWS_SPELL.class_id = CLASS.id;`
-      );
+    const rows = await db.query(`SELECT * from SPELLS`);
       const data = helper.emptyOrRows(rows);  
   
       return data
 }
+
+async function getSpellByClass(class_id) {
+  const rows = await db.query(`SELECT * FROM SPELLS WHERE class_id = ${class_id}`);
+  const data = helper.emptyOrRows(rows);  
+  
+  return data
+}
+
+async function getSpellIdsKnownByCharacter(character_id) {
+  const rows = await db.query(`SELECT s.id FROM KNOWS_SPELL as KS
+  JOIN SPELLS as S on S.id = KS.spell_id
+  WHERE KS.character_id = ${character_id};`);
+  const data = helper.emptyOrRows(rows); 
+  const ids = data.map(spell => spell.id);
+  return ids;
+}
+
+async function addSpellToCharacter(addSpell) {
+  await db.query(`INSERT INTO KNOWS_SPELL(spell_id, character_id) VALUES(${addSpell.spell_id}, ${addSpell.character_id})`)
+}
+
+async function removeSpellFromCharacter(removeSpell) {
+  await db.query(`DELETE FROM KNOWS_SPELL WHERE spell_id=${removeSpell.spell_id} AND character_id=${removeSpell.character_id}`);
+}
+
 
 async function getAllClasses() {
     const rows = await db.query(
@@ -74,7 +135,8 @@ async function getAllRaces() {
 }
 /* call stored procedure create character */
 async function createCharacter(character){
-    let query = `CALL create_character("${character.char_name}",${character.race_id},${character.class_id})`;
+    let query = `CALL create_character("${character.char_name}",${character.race_id},${character.class_id},
+    ${character.campaign_id},${character.owner_id || "NULL"})`;
     const result = await db.query(query);
   
     let message = 'Error in creating character';
@@ -90,14 +152,7 @@ async function createCharacter(character){
     const result = await db.query(
       `UPDATE DDCHARACTER 
       SET char_name="${character.char_name}", 
-      class_id = ${character.class_id},
-      race_id = ${character.race_id},
-      wisdom = ${character.wisdom},
-      charisma = ${character.charisma},
-      strength = ${character.strength},
-      dexterity = ${character.dexterity},
-      intelligence = ${character.intelligence},
-      constitution = ${character.constitution}
+      campaign_id = ${character.campaign_id}
       WHERE id=${id}` 
     );
   
@@ -115,7 +170,7 @@ async function createCharacter(character){
       `DELETE FROM DDCHARACTER WHERE id=${id}`
     );
   
-    let message = 'Error in deleting programming language';
+    let message = 'Error in deleting character';
   
     if (result.affectedRows) {
       message = 'Character deleted successfully';
@@ -134,5 +189,13 @@ module.exports = {
   getAllRaces,
   getAllSpells,
   postUser,
-  getAllRegisteredUsers
+  loginUser, 
+  getAllUsers,
+  getAllCampaigns,
+  createCampaign,
+  getAllSpells,
+  getSpellByClass,
+  getSpellIdsKnownByCharacter,
+  addSpellToCharacter,
+  removeSpellFromCharacter
 }
