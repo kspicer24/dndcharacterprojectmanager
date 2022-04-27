@@ -16,6 +16,55 @@ async function postUser(user){
   return {message};
 }
 
+async function createPost(post){
+    let query = `INSERT INTO POST (userId, body, tags) VALUES 
+               ("${post.userId}", "${post.body}", "${post.tags}")`;
+    const result = await db.query(query);
+    let message = 'Error in creating user';
+
+    if (result.affectedRows){
+        message = 'User created successfully';
+    }
+    return message;
+}
+
+async function getAllPosts(){
+    console.log('Getting posts');
+    const rows = await db.query(
+        `SELECT p.*, u.username as username, u.avatar as avatar
+                FROM POST as p INNER JOIN USER as u ON p.userId = u.id`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
+async function postReply(reply){
+    console.log('creating reply');
+    const rows = await db.query(
+        `INSERT INTO REPLY (userId, postId, body) VALUES (${reply.userId}, ${reply.postId}, '${reply.body}')`
+    )
+}
+
+async function getReplies(post){
+    console.log('getting replies');
+    const rows = await db.query(
+        `SELECT u.username, u.avatar, r.id, r.body 
+                FROM REPLY AS r INNER JOIN USER as u ON u.id = r.userId 
+                WHERE r.postId = ${post.id}`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
+async function likePost(post){
+    console.log('liking post');
+    await db.query(
+        `UPDATE POST SET likes = likes + 1 WHERE id = ${post.postId}`
+    );
+}
+
 async function getAllRegisteredUsers() {
 console.log('Getting registered users');
 const rows = await db.query(
@@ -125,8 +174,16 @@ async function createCharacter(character){
 
 }
 
+// posts
+
+
 module.exports = {
   getAll,
+  createPost,
+  getAllPosts,
+    likePost,
+    getReplies,
+    postReply,
   createCharacter,
   update,
   remove,
