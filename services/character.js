@@ -40,6 +40,61 @@ async function getAllUsers(){
     `SELECT * FROM USER`
   );
   const data = helper.emptyOrRows(rows);
+async function createPost(post){
+    let query = `INSERT INTO POST (userId, body, tags) VALUES 
+               ("${post.userId}", "${post.body}", "${post.tags}")`;
+    const result = await db.query(query);
+    let message = 'Error in creating user';
+
+    if (result.affectedRows){
+        message = 'User created successfully';
+    }
+    return message;
+}
+
+async function getAllPosts(){
+    console.log('Getting posts');
+    const rows = await db.query(
+        `SELECT p.*, u.username as username, u.avatar as avatar
+                FROM POST as p INNER JOIN USER as u ON p.userId = u.id`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
+async function postReply(reply){
+    console.log('creating reply');
+    const rows = await db.query(
+        `INSERT INTO REPLY (userId, postId, body) VALUES (${reply.userId}, ${reply.postId}, '${reply.body}')`
+    )
+}
+
+async function getReplies(post){
+    console.log('getting replies');
+    const rows = await db.query(
+        `SELECT u.username, u.avatar, r.id, r.body 
+                FROM REPLY AS r INNER JOIN USER as u ON u.id = r.userId 
+                WHERE r.postId = ${post.id}`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
+}
+
+async function likePost(post){
+    console.log('liking post');
+    await db.query(
+        `UPDATE POST SET likes = likes + 1 WHERE id = ${post.postId}`
+    );
+}
+
+async function getAllRegisteredUsers() {
+console.log('Getting registered users');
+const rows = await db.query(
+  `SELECT * FROM USER`
+);
+const data = helper.emptyOrRows(rows);
 
 
   return {
@@ -51,14 +106,14 @@ async function loginUser(user) {
   const rows = await db.query(
     `SELECT * FROM USER WHERE username = "${user.username}" AND password = "${user.password}"`
   );
-  const data = helper.emptyOrRows(rows);  
+  const data = helper.emptyOrRows(rows);
   if (data.length > 1) {
-    throw new Error("multiple user with the same username password combination"); 
+    throw new Error("multiple user with the same username password combination");
   } if (data.length == 1){
     return data[0];
-  } 
+  }
   return {error: "Incorrect name or password"};
-  
+
 
 }
 
@@ -87,14 +142,14 @@ async function getAll(page = 1){
 async function getAllSpells() {
     const rows = await db.query(`SELECT * from SPELLS`);
       const data = helper.emptyOrRows(rows);  
-  
+
       return data
 }
 
 async function getSpellByClass(class_id) {
   const rows = await db.query(`SELECT * FROM SPELLS WHERE class_id = ${class_id}`);
-  const data = helper.emptyOrRows(rows);  
-  
+  const data = helper.emptyOrRows(rows);
+
   return data
 }
 
@@ -102,7 +157,7 @@ async function getSpellIdsKnownByCharacter(character_id) {
   const rows = await db.query(`SELECT s.id FROM KNOWS_SPELL as KS
   JOIN SPELLS as S on S.id = KS.spell_id
   WHERE KS.character_id = ${character_id};`);
-  const data = helper.emptyOrRows(rows); 
+  const data = helper.emptyOrRows(rows);
   const ids = data.map(spell => spell.id);
   return ids;
 }
@@ -182,6 +237,11 @@ async function createCharacter(character){
 
 module.exports = {
   getAll,
+  createPost,
+  getAllPosts,
+    likePost,
+    getReplies,
+    postReply,
   createCharacter,
   update,
   remove,
@@ -189,7 +249,7 @@ module.exports = {
   getAllRaces,
   getAllSpells,
   postUser,
-  loginUser, 
+  loginUser,
   getAllUsers,
   getAllCampaigns,
   createCampaign,

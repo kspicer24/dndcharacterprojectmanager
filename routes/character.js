@@ -4,6 +4,51 @@ const express = require('express');
 const router = express.Router();
 const ddcharacters = require('../services/character');
 
+router.post('/posts', async function(req, res, next){
+  try{
+    console.log("creating post");
+    res.json(await ddcharacters.createPost(req.body));
+  } catch (err) {
+    console.error(`Error while creating post`, err.message);
+    next(err);
+  }
+});
+
+router.get('/posts', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.getAllPosts());
+  } catch (err) {
+    console.error('Error while getting posts', err.message);
+    next(err);
+  }
+});
+
+router.put('/posts', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.likePost(req.body));
+  } catch (err){
+    console.error('Error while updating post', err.message);
+    next(err);
+  }
+});
+
+router.get('/posts/replies/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.getReplies(req.params));
+  } catch (err){
+    console.error('Error while getting replies', err.message);
+    next(err);
+  }
+});
+
+router.post('/posts/replies', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.postReply(req.body));
+  } catch (err){
+    console.error('Error while creating reply', err.message);
+    next(err);
+  }
+})
 
 
 /* Create a campaign */
