@@ -5,10 +5,20 @@ const helper = require('../helper');
 const config = require('../config');
 
 async function getUser(user){
-    let query = `SELECT username, avatar, name, bio FROM USER WHERE id = ${user.id}`;
+    let query = `SELECT username, avatar, name, bio, dob, hometown FROM USER WHERE id = ${user.id}`;
     const rows = await db.query(query);
     const data = helper.emptyOrRows(rows);
     return data;
+}
+
+async function updateUser(user, id){
+    let query = `UPDATE USER SET avatar = "${user.avatar}", bio = "${user.bio}", name = "${user.name}" WHERE id = ${id.id}`;
+    const result = await db.query(query);
+    let message = 'Error in updating user';
+
+    if (result.affectedRows){
+        message = 'User updated successfully';
+    }
 }
 
 async function postUser(user){
@@ -287,6 +297,7 @@ async function getAllUsers() {
 
     module.exports = {
         getUser,
+        updateUser,
         getAll,
         createPost,
         getAllPosts,

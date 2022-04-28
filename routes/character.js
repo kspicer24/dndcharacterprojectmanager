@@ -42,6 +42,15 @@ router.get('/posts/:id', async function(req, res, next){
   }
 });
 
+router.put('/profile/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.updateUser(req.body, req.params));
+  } catch (err){
+    console.error('Error while updating user');
+    next(err);
+  }
+});
+
 router.put('/posts', async function(req, res, next){
   try{
     res.json(await ddcharacters.likePost(req.body));
