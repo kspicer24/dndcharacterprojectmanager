@@ -4,6 +4,16 @@ const express = require('express');
 const router = express.Router();
 const ddcharacters = require('../services/character');
 
+
+router.get('/profile/:id', async function(req, res, next){
+  try{
+    console.log('getting profile');
+    res.json(await ddcharacters.getUser(req.params));
+  }catch (err){
+    console.error('Error while getting profile', err.message);
+    next(err);
+  }
+})
 router.post('/posts', async function(req, res, next){
   try{
     console.log("creating post");
@@ -19,6 +29,15 @@ router.get('/posts', async function(req, res, next){
     res.json(await ddcharacters.getAllPosts());
   } catch (err) {
     console.error('Error while getting posts', err.message);
+    next(err);
+  }
+});
+
+router.get('/posts/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.getUserPosts(req.params));
+  } catch (err){
+    console.error('Error while getting user posts', err.message);
     next(err);
   }
 });

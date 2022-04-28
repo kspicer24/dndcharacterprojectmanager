@@ -4,6 +4,13 @@ const db = require('./db');
 const helper = require('../helper');
 const config = require('../config');
 
+async function getUser(user){
+    let query = `SELECT username, avatar, name, bio FROM USER WHERE id = ${user.id}`;
+    const rows = await db.query(query);
+    const data = helper.emptyOrRows(rows);
+    return data;
+}
+
 async function postUser(user){
   let query = `INSERT INTO USER (username, password) VALUES ("${user.username}","${user.password}")`;
   const result = await db.query(query);
@@ -41,6 +48,8 @@ async function getAllUsers() {
          FROM USER`
     );
     const data = helper.emptyOrRows(rows);
+    return data;
+}
 
     async function createPost(post) {
         let query = `INSERT INTO POST (userId, body, tags)
@@ -64,6 +73,18 @@ async function getAllUsers() {
         const data = helper.emptyOrRows(rows);
         console.log(data);
         return data;
+    }
+
+    async function getUserPosts(user){
+    console.log('Getting user posts');
+    const rows = await db.query(
+        `SELECT p.*, u.username as username, u.avatar as avatar 
+                FROM POST as p INNER JOIN USER as u ON p.userId = u.id 
+                WHERE p.userId = ${user.id}`
+    );
+    const data = helper.emptyOrRows(rows);
+    console.log(data);
+    return data;
     }
 
     async function postReply(reply) {
@@ -265,10 +286,12 @@ async function getAllUsers() {
     }
 
     module.exports = {
+        getUser,
         getAll,
         createPost,
         getAllPosts,
         likePost,
+        getUserPosts,
         getReplies,
         postReply,
         createCharacter,
@@ -286,6 +309,6 @@ async function getAllUsers() {
         getSpellByClass,
         getSpellIdsKnownByCharacter,
         addSpellToCharacter,
-        removeSpellFromCharacter
-    }
+        removeSpellFromCharacter,
+
 }
