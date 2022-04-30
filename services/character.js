@@ -12,7 +12,7 @@ async function getUser(user){
 }
 
 async function updateUser(user, id){
-    let query = `UPDATE USER SET avatar = "${user.avatar}", bio = "${user.bio}", name = "${user.name}" WHERE id = ${id.id}`;
+    let query = `UPDATE USER SET avatar = "${user.avatar}", bio = "${user.bio}", name = "${user.name}", dob = "${user.dob}", hometown = "${user.hometown}" WHERE id = ${id.id}`;
     const result = await db.query(query);
     let message = 'Error in updating user';
 
