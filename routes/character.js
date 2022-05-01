@@ -24,16 +24,16 @@ router.post('/posts', async function(req, res, next){
   }
 });
 
-router.get('/posts', async function(req, res, next){
+router.get('/posts/:activeUser', async function(req, res, next){
   try{
-    res.json(await ddcharacters.getAllPosts());
+    res.json(await ddcharacters.getAllPosts(req.params));
   } catch (err) {
     console.error('Error while getting posts', err.message);
     next(err);
   }
 });
 
-router.get('/posts/:id', async function(req, res, next){
+router.get('/posts/:id/:activeUser', async function(req, res, next){
   try{
     res.json(await ddcharacters.getUserPosts(req.params));
   } catch (err){
@@ -59,6 +59,15 @@ router.put('/posts', async function(req, res, next){
     next(err);
   }
 });
+
+router.put('/posts/unlike', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.unlikePost(req.body));
+  } catch (err){
+    console.error('Error while unliking post', err.message);
+    next(err);
+  }
+})
 
 router.delete('/posts/:id', async function(req, res, next){
   try{
@@ -242,6 +251,16 @@ router.get('/', async function(req, res, next) {
     next(err);
   }
 });
+
+router.get(`/:uid`, async function(req, res, next){
+  try{
+    console.log(req.params);
+    res.json(await ddcharacters.getAllForUser(req.params));
+  } catch (err) {
+    console.error(`Error while getting ddcharacters for user`, err.message);
+    next(err);
+  }
+})
 
 /* POST ddcharacter */
 router.post('/', async function(req, res, next) {

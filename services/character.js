@@ -73,11 +73,15 @@ async function getAllUsers() {
         return message;
     }
 
-    async function getAllPosts() {
+    async function getAllPosts(user) {
         console.log('Getting posts');
         const rows = await db.query(
-            `SELECT p.*, u.username as username, u.avatar as avatar
-             FROM POST as p
+            `SELECT p.*, u.username as username, u.avatar as avatar,
+                    CASE WHEN EXISTS (SELECT * FROM LIKED WHERE LIKED.userId = ${user.activeUser} AND LIKED.postId = p.id)
+                             THEN 'TRUE'
+                         ELSE 'FALSE'
+                        END AS liked
+                    FROM POST as p
                       INNER JOIN USER as u ON p.userId = u.id`
         );
         const data = helper.emptyOrRows(rows);
@@ -85,13 +89,15 @@ async function getAllUsers() {
         return data;
     }
 
-    async function getUserPosts(user){
+    async function getUserPosts(users){
     console.log('Getting user posts');
     const rows = await db.query(
-        `SELECT p.*, u.username as username, u.avatar as avatar 
-                FROM POST as p INNER JOIN USER as u ON p.userId = u.id 
-                WHERE p.userId = ${user.id}`
+        `SELECT p.*, u.username as username, u.avatar as avatar,
+                IF(EXISTS(SELECT * FROM LIKED WHERE userId = ${user.activeUser} AND postId = ${user.id})) AS liked
+                 FROM POST as p INNER JOIN USER as u ON p.userId = u.id 
+                        WHERE p.userId = ${users.id}`
     );
+
     const data = helper.emptyOrRows(rows);
     console.log(data);
     return data;
@@ -121,9 +127,24 @@ async function getAllUsers() {
     async function likePost(post) {
         console.log('liking post');
         await db.query(
+            `INSERT INTO LIKED (userId, postId) VALUES (${post.userId}, ${post.postId});`
+        );
+        await db.query(
             `UPDATE POST
              SET likes = likes + 1
              WHERE id = ${post.postId}`
+        );
+    }
+
+    async function unlikePost(post){
+        console.log('unliking post');
+        await db.query(
+            `DELETE FROM LIKED WHERE userId = ${post.userId} AND postId = ${post.postId};`
+        );
+        await db.query(
+            `UPDATE POST
+                    SET likes = likes - 1
+                    WHERE id = ${post.postId};`
         );
     }
 
@@ -158,6 +179,25 @@ async function getAllUsers() {
         return {error: "Incorrect name or password"};
 
 
+    }
+
+    async function getAllForUser(user){
+        const rows = await db.query(
+            `SELECT DDCHARACTER.*,
+                    RACE.name     AS race_name,
+                    CLASS.name    AS class_name,
+                    CAMPAIGN.name AS campaign_name,
+                    USER.id as userId
+
+             FROM DDCHARACTER
+                      JOIN RACE ON DDCHARACTER.race_id = RACE.id
+                      JOIN CLASS ON DDCHARACTER.class_id = CLASS.id
+                      JOIN CAMPAIGN ON DDCHARACTER.campaign_id = CAMPAIGN.id
+                      LEFT JOIN USER ON DDCHARACTER.owner_id = USER.id
+            WHERE USER.id = ${user.uid};`
+        );
+        const data = helper.emptyOrRows(rows);
+        return data;
     }
 
     async function getAll(page = 1) {
@@ -309,6 +349,7 @@ async function getAllUsers() {
         createPost,
         getAllPosts,
         likePost,
+        unlikePost,
         deletePost,
         deleteReply,
         getUserPosts,
@@ -330,5 +371,6 @@ async function getAllUsers() {
         getSpellIdsKnownByCharacter,
         addSpellToCharacter,
         removeSpellFromCharacter,
+        getAllForUser
 
 }
