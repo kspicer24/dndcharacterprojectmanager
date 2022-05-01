@@ -22,7 +22,7 @@ async function updateUser(user, id){
 }
 
 async function postUser(user){
-  let query = `INSERT INTO USER (username, password) VALUES ("${user.username}","${user.password}")`;
+  let query = `INSERT INTO USER (username, password, role) VALUES ("${user.username}","${user.password}", "${user.role}")`;
   const result = await db.query(query);
   let message = 'Error in creating user';
 
@@ -225,6 +225,13 @@ async function getAllUsers() {
                           AND character_id = ${removeSpell.character_id}`);
     }
 
+    async function deletePost(post){
+        await db.query(`DELETE FROM POST WHERE id = ${post.id}`);
+    }
+
+    async function deleteReply(reply){
+        await db.query(`DELETE FROM REPLY WHERE id = ${reply.id}`);
+    }
 
     async function getAllClasses() {
         const rows = await db.query(
@@ -302,6 +309,8 @@ async function getAllUsers() {
         createPost,
         getAllPosts,
         likePost,
+        deletePost,
+        deleteReply,
         getUserPosts,
         getReplies,
         postReply,

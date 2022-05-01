@@ -60,6 +60,24 @@ router.put('/posts', async function(req, res, next){
   }
 });
 
+router.delete('/posts/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.deletePost(req.params));
+  } catch (err){
+    console.error('Error while deleting post', err.message);
+    next(err);
+  }
+});
+
+router.delete('/posts/replies/:id', async function(req, res, next){
+  try{
+    res.json(await ddcharacters.deleteReply(req.params));
+  } catch (err){
+    console.error('Error while deleting reply', err.message);
+    next(err);
+  }
+});
+
 router.get('/posts/replies/:id', async function(req, res, next){
   try{
     res.json(await ddcharacters.getReplies(req.params));
