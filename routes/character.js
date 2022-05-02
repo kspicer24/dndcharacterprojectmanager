@@ -78,7 +78,7 @@ router.delete('/posts/:id', async function(req, res, next){
   }
 });
 
-router.delete('/posts/replies/:id', async function(req, res, next){
+router.delete('/replies/:id', async function(req, res, next){
   try{
     res.json(await ddcharacters.deleteReply(req.params));
   } catch (err){
@@ -87,7 +87,7 @@ router.delete('/posts/replies/:id', async function(req, res, next){
   }
 });
 
-router.get('/posts/replies/:id', async function(req, res, next){
+router.get('/replies/:id', async function(req, res, next){
   try{
     res.json(await ddcharacters.getReplies(req.params));
   } catch (err){
@@ -96,7 +96,7 @@ router.get('/posts/replies/:id', async function(req, res, next){
   }
 });
 
-router.post('/posts/replies', async function(req, res, next){
+router.post('/replies', async function(req, res, next){
   try{
     res.json(await ddcharacters.postReply(req.body));
   } catch (err){

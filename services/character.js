@@ -93,8 +93,11 @@ async function getAllUsers() {
     console.log('Getting user posts');
     const rows = await db.query(
         `SELECT p.*, u.username as username, u.avatar as avatar,
-                IF(EXISTS(SELECT * FROM LIKED WHERE userId = ${user.activeUser} AND postId = ${user.id})) AS liked
-                 FROM POST as p INNER JOIN USER as u ON p.userId = u.id 
+                CASE WHEN EXISTS (SELECT * FROM LIKED WHERE LIKED.userId = ${users.activeUser} AND LIKED.postId = p.id)
+                         THEN 'TRUE'
+                     ELSE 'FALSE'
+                    END AS liked
+                FROM POST as p INNER JOIN USER as u ON p.userId = u.id 
                         WHERE p.userId = ${users.id}`
     );
 
@@ -107,7 +110,7 @@ async function getAllUsers() {
         console.log('creating reply');
         const rows = await db.query(
             `INSERT INTO REPLY (userId, postId, body)
-             VALUES (${reply.userId}, ${reply.postId}, '${reply.body}')`
+             VALUES (${reply.userId}, ${reply.postId}, "${reply.body}")`
         )
     }
 
@@ -186,17 +189,17 @@ async function getAllUsers() {
             `SELECT DDCHARACTER.*,
                     RACE.name     AS race_name,
                     CLASS.name    AS class_name,
-                    CAMPAIGN.name AS campaign_name,
-                    USER.id as userId
+                    CAMPAIGN.name AS campaign_name
 
              FROM DDCHARACTER
                       JOIN RACE ON DDCHARACTER.race_id = RACE.id
                       JOIN CLASS ON DDCHARACTER.class_id = CLASS.id
                       JOIN CAMPAIGN ON DDCHARACTER.campaign_id = CAMPAIGN.id
-                      LEFT JOIN USER ON DDCHARACTER.owner_id = USER.id
-            WHERE USER.id = ${user.uid};`
+
+            WHERE DDCHARACTER.owner_id = ${user.uid};`
         );
         const data = helper.emptyOrRows(rows);
+        console.log(data);
         return data;
     }
 
